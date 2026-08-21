@@ -8,15 +8,10 @@ variable "region" {
   default = "us-central1"
 }
 
-variable "artifact_registry_repository" {
-  description = "Nome do repositório Artifact Registry compartilhado (rangel-tech-foundation/gcp)."
+variable "litellm_image" {
+  description = "Imagem pública oficial do LiteLLM (ghcr.io/berriai/litellm) — não builda imagem própria, ver README."
   type        = string
-  default     = "containers"
-}
-
-variable "image_tag" {
-  description = "Tag da imagem já publicada no Artifact Registry (o CI publica antes de rodar terraform apply aqui)."
-  type        = string
+  default     = "ghcr.io/berriai/litellm:main-stable"
 }
 
 variable "min_instances" {

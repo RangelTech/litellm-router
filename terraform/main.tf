@@ -9,9 +9,10 @@
 # `rangel-tech-foundation/gcp` — este repo só declara o serviço em si.
 
 resource "google_cloud_run_v2_service" "litellm" {
-  name     = "litellm-router"
-  location = var.region
-  project  = var.project_id
+  name                = "litellm-router"
+  location            = var.region
+  project             = var.project_id
+  deletion_protection = false
 
   template {
     scaling {
@@ -20,7 +21,7 @@ resource "google_cloud_run_v2_service" "litellm" {
     }
 
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_repository}/litellm-router:${var.image_tag}"
+      image = var.litellm_image
 
       env {
         name  = "STORE_MODEL_IN_DB"
@@ -61,13 +62,21 @@ resource "google_cloud_run_v2_service" "litellm" {
         container_port = 4000
       }
 
+      resources {
+        limits = {
+          cpu    = "2"
+          memory = "2Gi"
+        }
+      }
+
       startup_probe {
         http_get {
           path = "/health/liveliness"
         }
-        initial_delay_seconds = 5
-        period_seconds        = 5
-        failure_threshold     = 12
+        initial_delay_seconds = 10
+        period_seconds        = 10
+        failure_threshold     = 30
+        timeout_seconds       = 5
       }
     }
   }
@@ -83,4 +92,23 @@ resource "google_cloud_run_v2_service_iam_member" "invoker" {
   project  = var.project_id
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+# SA runtime do Cloud Run (default compute SA, nenhuma custom SA setada acima)
+# precisa ler os 3 secrets referenciados via secret_key_ref.
+resource "google_secret_manager_secret_iam_member" "litellm_runtime_secrets" {
+  for_each = toset([
+    var.database_url_secret_id,
+    var.redis_url_secret_id,
+    var.master_key_secret_id,
+  ])
+
+  project   = var.project_id
+  secret_id = each.value
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.current.number}-compute@developer.gserviceaccount.com"
 }
