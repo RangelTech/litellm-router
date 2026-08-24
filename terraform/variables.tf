@@ -16,15 +16,16 @@ variable "litellm_image" {
 
 variable "min_instances" {
   description = <<-EOT
-    PONTO EM ABERTO PRO DONO (infra-04-litellm-substitui-9router.md, seção 7,
-    item 1) — não decidido sozinho aqui. Recomendado 1 (evita cold start no
-    caminho quente de toda conversa de IA), mas aumenta custo fixo (~US$15-25/mês
-    de 1 instância sempre ligada). Default aqui é 0 (mais barato, cold start
-    aceito) até vir a decisão — trocar pra 1 é só mudar este valor, não
-    precisa reescrever nada.
+    Decisão do dono (24/08/2026): min=1. Cold start real medido ~28s, na
+    borda do timeout de 30s de `litellm_client` (achado ao testar o
+    auto-provisionamento de tenant, agent-platform) -- travava criação de
+    Team pra tenant novo e deixaria qualquer chamada de IA real lenta no
+    pior caso. Prioriza fluidez sobre custo fixo (~US$15-25/mês de 1
+    instância sempre ligada) pra este serviço especificamente -- está no
+    caminho quente de toda conversa de IA de todo tenant.
   EOT
   type        = number
-  default     = 0
+  default     = 1
 }
 
 variable "max_instances" {
