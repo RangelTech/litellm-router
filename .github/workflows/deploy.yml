@@ -47,4 +47,4 @@ jobs:
           done
           terraform apply -input=false -lock=false -auto-approve
       - name: Smoke check
-        run: curl -fsS --retry 5 --retry-all-errors "$(gcloud run services describe litellm-router --project=rangel-tech --region=us-central1 --format='value(status.url)')/health/liveliness" | grep -q '"status":"healthy"'
+        run: curl -fsS --retry 5 --retry-all-errors "$(gcloud run services describe litellm-router --project=rangel-tech --region=us-central1 --format='value(status.url)')/health/liveliness" | grep -q "I'm alive"
