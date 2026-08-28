@@ -33,7 +33,7 @@ jobs:
       - name: Build image
         run: gcloud builds submit --project=rangel-tech --config=infra/cloudbuild-litellm-router.yaml --substitutions=SHORT_SHA=${{ github.sha }} .
       - uses: hashicorp/setup-terraform@v3
-        with: { terraform_version: "1.9.5" }
+        with: { terraform_version: "1.15.0" }
       - name: Apply
         working-directory: terraform
         env:
