@@ -9,7 +9,7 @@ variable "region" {
 }
 
 variable "litellm_image" {
-  description = "Imagem pública oficial do LiteLLM (ghcr.io/berriai/litellm) — não builda imagem própria, ver README."
+  description = "Imagem do LiteLLM. 28/08/2026: passou a ser imagem PRÓPRIA (Dockerfile deste repo, FROM a oficial + custom_provider.py registrado via config.yaml) -- necessário pro provider customizado do Codex (correcao-01 secao 3a). O workflow de deploy builda e passa o tag real via TF_VAR_litellm_image; o default aqui só serve pra apply manual local."
   type        = string
   default     = "ghcr.io/berriai/litellm:main-stable"
 }

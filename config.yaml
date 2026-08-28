@@ -1,0 +1,7 @@
+# Config minima do LiteLLM -- tudo mais (deployments/Teams/keys) continua
+# vindo do banco (STORE_MODEL_IN_DB=True, terraform/main.tf), esta config
+# so registra o provider customizado do Codex (correcao-01 secao 3a).
+litellm_settings:
+  custom_provider_map:
+    - provider: "codex-direct"
+      custom_handler: custom_provider.codex_custom_llm

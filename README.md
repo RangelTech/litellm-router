@@ -2,27 +2,42 @@
 
 Cloud Run do LiteLLM — substitui o 9Router (`infra-04-litellm-substitui-9router.md`).
 
-Não builda imagem própria: usa `ghcr.io/berriai/litellm:main-latest` como
-base (mesma imagem validada na Fase A, sandbox local) — se algum dia precisar
-customizar, aí sim vira um `Dockerfile` neste repo publicando pro Artifact
-Registry compartilhado (`rangel-tech-foundation`).
+**28/08/2026: passou a buildar imagem própria** (`Dockerfile`, `FROM
+ghcr.io/berriai/litellm:main-stable` + `custom_provider.py` + `config.yaml`)
+— necessário pra registrar o provider customizado do Codex (`codex-direct`,
+via `litellm.custom_provider_map`), que roda dentro do Router de verdade em
+vez de client paralelo (ver `correcao-01-execucao-completa.md` seção 3a,
+`personal-skills/mega-spec-reestrutura`).
 
-## Terraform
+`STORE_MODEL_IN_DB=True` continua valendo pra tudo que É dinâmico
+(deployments/Teams/virtual keys por tenant, via banco) — `config.yaml`
+só registra coisa estática de código (o provider customizado), nunca
+credencial nem deployment de tenant.
+
+## Deploy
+
+`.github/workflows/deploy.yml` builda a imagem (`infra/cloudbuild-litellm-router.yaml`,
+Artifact Registry `containers/litellm-router`) e aplica o Terraform em
+`terraform/` a cada push em `main` — mesmo padrão do `deploy-oauth-browser.yml`
+do `agent-platform`. Roda `terraform import` antes do apply (tolerante a
+falha) porque o `.tfstate` é local/gitignored, não compartilhado entre
+execuções do CI.
+
+## Terraform (apply manual local, se precisar)
 
 ```
 cd terraform
 terraform init
-terraform validate
-terraform plan -var="image_tag=main-latest" -var="database_url_secret_id=..." ...
+terraform plan
+terraform apply
 ```
 
-**Não rodar `apply` ainda** — depende da fundação (`rangel-tech-foundation`)
-já ter sido aplicada (Artifact Registry, secrets no Secret Manager) e da org
-GitHub existir. Ver `personal-skills/mega-spec-reestrutura/memoria.md` pros
-bloqueios atuais.
+`litellm_image` (variável) tem um default de imagem oficial só pra apply
+manual isolado — o workflow real sempre passa `TF_VAR_litellm_image`
+apontando pra imagem recém-buildada com o SHA do commit.
 
 ## Ponto em aberto
 
-`min_instances` (variável em `terraform/variables.tf`) — recomendado `1`
-(evita cold start no caminho quente de toda conversa de IA) mas aumenta
-custo fixo. Fica default `0` até o dono decidir — ver `infra-04` seção 7.
+`beeper/chatwoot` (Facebook/Instagram via Matrix, `correcao-01` seção 4)
+não depende deste repo — é peça separada, mas se algum dia rodar dentro
+do mesmo Cloud Run compartilhado, revisar aqui.
