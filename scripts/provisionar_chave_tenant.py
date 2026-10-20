@@ -49,20 +49,21 @@ def main(argv=None):
     nomes = {m["model_name"] for m in infos if m["model_name"].startswith(pre)}
     nomes |= {x for x in a.aliases.split(",") if x}
     models = sorted(nomes)
+    # sem modelos, `models` vazio significaria "todos": usa alias inexistente (fail-closed)
+    models_team = models or ["__sem_acesso__"]
     teams = call("GET", "/team/list")
     team = next((t for t in teams if t.get("team_alias") == a.tenant_key), None)
     mudou = []
     if team is None:
         mudou.append("team criado")
         if not a.dry_run:
-            team = call("POST", "/team/new", {"team_alias": a.tenant_key, "models": models})
-    elif sorted(team.get("models") or []) != models:
+            team = call("POST", "/team/new", {"team_alias": a.tenant_key, "models": models_team})
+    elif sorted(team.get("models") or []) != sorted(models_team):
         mudou.append("team.models atualizado")
         if not a.dry_run:
-            call("POST", "/team/update", {"team_id": team["team_id"], "models": models})
+            call("POST", "/team/update", {"team_id": team["team_id"], "models": models_team})
     team_id = (team or {}).get("team_id")
-    # sem modelos, `models` vazio herdaria o team: usa alias inexistente (fail-closed)
-    chave_models = models or ["__sem_acesso__"]
+    chave_models = models_team
     existentes = {}
     if team_id:
         listado = call("GET", f"/key/list?team_id={team_id}&return_full_object=true&size=100")
