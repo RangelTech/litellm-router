@@ -9,7 +9,8 @@ ENV GIT_COMMIT=${GIT_COMMIT}
 WORKDIR /app
 
 # Provider customizado do Codex (codex-direct) + config estatica, sem segredo.
-COPY custom_provider.py /app/custom_provider.py
+COPY custom_provider.py isolation_guard.py /app/
+COPY scripts/provisionar_chave_tenant.py /app/scripts/provisionar_chave_tenant.py
 COPY config.yaml /app/config.yaml
 
 EXPOSE 4000

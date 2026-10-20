@@ -29,3 +29,13 @@ gravar em outro caminho, o log mostra `read-only file system`. A imagem roda com
 
 `bash scripts/verify.sh`: build, Postgres descartavel, container read-only, espera `/health/liveliness`,
 confere que o `config.yaml` e o `custom_provider` carregam. Nao precisa de chave de provider.
+
+## Isolamento entre tenants
+
+`isolation_guard.py` (pre-call hook, registrado em `config.yaml`) rejeita `fallbacks`, `context_window_fallbacks`,
+`content_policy_fallbacks`, `router_settings_override`, `mock_testing_*`, `api_base` etc. vindos do cliente, `model` com
+virgula/curinga, e chaves de team sem `models` explicito ou fora do namespace `tenant_<alias>_`.
+`ISOLATION_SHARED_ALIASES` (csv) libera aliases de plataforma (ex. `ninerouter-*`) em chaves de team;
+`ISOLATION_ENFORCE_KEY_MODELS=false` desliga so a regra de chave de team (etapa de rollout).
+`scripts/provisionar_chave_tenant.py <tenant>` (idempotente, tambem em `/app/scripts` na imagem) fixa `models` no team e nas chaves.
+Regressao: `python -m pytest tests -v` (Docker; containers `b-hard-*`).

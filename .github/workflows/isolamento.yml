@@ -1,0 +1,12 @@
+name: Isolamento
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pytest httpx
+      - run: python -m pytest tests -v
