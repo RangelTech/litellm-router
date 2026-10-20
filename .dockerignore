@@ -1,5 +1,6 @@
 .git
 .github
 *.md
-scripts
+scripts/verify.sh
+tests
 .gitignore
