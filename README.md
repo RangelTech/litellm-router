@@ -1,5 +1,11 @@
 # litellm-router
 
+> **DESCONTINUADO.** O proxy LiteLLM dá lugar ao gateway multi-tenant do Luar.
+>
+> Substituto: o gateway de LLM multi-tenant da Fase G (futuro `luar_ai_gateway`). O proxy LiteLLM ainda roda em produção até a conclusão do G-10; só então este repositório será arquivado.
+>
+> Este repositório fica público e somente para consulta. Não receberá novas funcionalidades e será arquivado no GitHub quando a condição acima for cumprida.
+
 Imagem do LiteLLM (proxy) com o provider customizado do Codex (`codex-direct`, `custom_provider.py`)
 registrado via `config.yaml`. Deployments, Teams e virtual keys vivem no Postgres (`STORE_MODEL_IN_DB=True`).
 
